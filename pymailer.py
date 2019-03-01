@@ -12,18 +12,22 @@ import logging
 import locale
 import pandas as pd
 import os
+from email.utils import formatdate
 import re
 import smtplib
 import sys
 from datetime import datetime
 from email import message
 from time import sleep
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email.mime.text import MIMEText
+from email import encoders
+
 
 import config
 import error_logs
 
-def f(d):
-   return '{0:n}'.format(d)
 
 locale.setlocale(locale.LC_ALL, 'en_us')
 
@@ -140,6 +144,22 @@ class PyMailer():
         email_message.add_header('MIME-Version', '1.0')
         email_message.add_header('Content-Type', 'text/html; charset="utf-8"')
         email_message.set_payload(html_content)
+
+        # email_message = MIMEMultipart('alternative')
+        # email_message['From'] = sender
+        # email_message['To'] = recipient
+        # email_message['Date'] = formatdate(localtime=True)
+        # email_message['Subject'] = self.subject
+        # email_message.attach(MIMEText(html_content, 'html'))
+        #
+        #
+        # if 'file' in recipient:
+        #     file = recipient['file']
+        #     part = MIMEBase('application', "octet-stream")
+        #     part.set_payload(open(file, "rb").read())
+        #     encoders.encode_base64(part)
+        #     part.add_header('Content-Disposition', 'attachment; filename=' + file + '')
+        #     email_message.attach(part)
 
         return email_message.as_string()
 
