@@ -1,12 +1,16 @@
-# Bluk Mail sender Script
+"""" # Bluk Mail sender Script
 # To send mail in live environment
-# Example: python pymailer.py -s "path to/mailTemplate.html" "path to/Database.csv" "Subject"
-
+# Example: python pymailer.py -s "path templates/modelo_720.html" "templates/modelo_720.xlsx" "Subject"
+# Example: python pymailer.py -s "templates/rentabilidades.html" "templates/rentabilidades.xlsx" Resumen 2018
 # To send mail in Test environment
-# Example: python pymailer.py -s "path to/mailTemplate.html" "path to/Database.csv" "Subject"
+# Example: python pymailer.py -s "path to/modelo_720.html" "path to/Database.csv" "Subject"
 
+https://wordhtml.com/
+"""""
 import csv
 import logging
+import locale
+import pandas as pd
 import os
 import re
 import smtplib
@@ -18,6 +22,11 @@ from time import sleep
 import config
 import error_logs
 
+def f(d):
+   return '{0:n}'.format(d)
+
+locale.setlocale(locale.LC_ALL, 'en_us')
+
 # setup logging to specified log file
 logger = error_logs.get_logger(__name__)
 class PyMailer():
@@ -26,9 +35,9 @@ class PyMailer():
     database of recipients (.csv); the subject of the email; email adsress the mail comes from; and the name the email
     is from.
     """
-    def __init__(self, html_path, csv_path, subject, *args, **kwargs):
+    def __init__(self, html_path, excel_path, subject, *args, **kwargs):
         self.html_path = html_path
-        self.csv_path = csv_path
+        self.excel_path = excel_path
         self.subject = subject
         self.from_name = kwargs.get('from_name', config.FROM_NAME)
         self.from_email = kwargs.get('to_name', config.FROM_EMAIL)
@@ -75,6 +84,18 @@ class PyMailer():
             return None
         return email_address
 
+    def _number_parser_eur(self,number):
+        """
+        Parser int and float to Eur format number
+        :param number:
+        :return:
+        """
+        if type(number) == float:
+            return locale.format('%.2f', number, True).replace(',',';').replace('.',',').replace(';','.')
+        elif type(number) == int:
+            return locale.format('%d', number, True).replace(',', '.')
+
+
     def _html_parser(self, recipient_data):
         """
         Open, parse and substitute placeholders with recipient data.
@@ -92,7 +113,11 @@ class PyMailer():
         if recipient_data:
             for key, value in recipient_data.items():
                 placeholder = "<!--%s-->" % key
-                html_content = (html_content.decode('utf-8')).replace(placeholder, value).encode('utf-8')
+                valor = value
+                if type(valor) in [float,int]:
+                    valor = self._number_parser_eur(valor)
+
+                html_content = (html_content.decode('utf-8')).replace(placeholder, str(valor)).encode('utf-8')
                 # html_content = str(html_content).replace(placeholder, value)
 
         return html_content
@@ -102,7 +127,7 @@ class PyMailer():
         Form the html email, including mimetype and headers.
         """
         # form the recipient and sender headers
-        recipient = "%s <%s>" % (recipient_data.get('name'), recipient_data.get('email'),)
+        recipient = "%s <%s>" % (recipient_data.get('NAME'), recipient_data.get('EMAIL'),)
         sender = "%s <%s>" % (self.from_name, self.from_email)
         # get the html content
         html_content = self._html_parser(recipient_data)
@@ -118,57 +143,21 @@ class PyMailer():
 
         return email_message.as_string()
 
-    def _parse_csv(self, csv_path=None):
+    def _parse_excel(self, excel_path=None):
         """
-        Parse the entire csv file and return a list of dicts.
+        Parse the entire excel file and return a list of dicts.
         """
-        is_resend = csv_path is not None
-        if not csv_path:
-            csv_path = self.csv_path
+
+        if not excel_path:
+            excel_path = self.excel_path
 
         try:
-            csv_file = open(csv_path, 'r+')
+            excel_data = pd.read_excel(excel_path)
         except IOError:
-            raise IOError("Invalid or missing csv file path.")
+            raise IOError("Invalid or missing excel file path.")
 
-        csv_reader = csv.reader(csv_file)
-        recipient_data_list = []
-        for i, row in enumerate(csv_reader):
-            if i == 0:
-                continue
-            # test indexes exist and validate email address
-            try:
-                recipient_name = row[0]
-                recipient_email = self._validate_email(row[1])
-                SALDO_MEDIO_MONEDA = row[2]
-                SALDO_FINAL_MONEDA = row[3]
-                PRIMER_INGRESO = row[4]
-                CÓDIGO_CUENTA = row[5]
-                
-            except IndexError:
-                recipient_name = ''
-                recipient_email = None
 
-            # log missing email addresses and line number
-            if not recipient_email:
-                logger.warning("Recipient email missing or invalid in line %s" % i)
-            else:
-                recipient_data_list.append({
-                    'name': recipient_name,
-                    'email': recipient_email,
-                    'SALDO_MEDIO_MONEDA': SALDO_MEDIO_MONEDA,
-                    'SALDO_FINAL_MONEDA': SALDO_FINAL_MONEDA,
-                    'PRIMER_INGRESO': PRIMER_INGRESO,
-                    'CÓDIGO_CUENTA': CÓDIGO_CUENTA,
-                })
-
-        # clear the contents of the resend csv file
-        if is_resend:
-            csv_file_write = open(csv_path, 'w+')
-            csv_file_write.write('')
-            csv_file_write.close()
-
-        csv_file.close()
+        recipient_data_list = excel_data.to_dict('records')
 
         return recipient_data_list
 
@@ -177,7 +166,7 @@ class PyMailer():
         Iterate over the recipient list and send the specified email.
         """
         if not recipient_list:
-            recipient_list = self._parse_csv()
+            recipient_list = self._parse_excel()
 
         # save the number of recipient and time started to the stats file
         if not retry_count:
@@ -190,10 +179,10 @@ class PyMailer():
         for recipient_data in recipient_list:
             # instantiate the required vars to send email
             message = self._form_email(recipient_data)
-            if recipient_data.get('name'):
-                recipient = "%s <%s>" % (recipient_data.get('name'), recipient_data.get('email'),)
+            if recipient_data.get('NAME'):
+                recipient = "%s <%s>" % (recipient_data.get('NAME'), recipient_data.get('EMAIL'),)
             else:
-                recipient = recipient_data.get('name')
+                recipient = recipient_data.get('NAME')
             sender = "%s <%s>" % (self.from_name, self.from_email)
 
             # send the actual email
@@ -228,7 +217,7 @@ class PyMailer():
             self.send(retry_count=i)
 
     def count_recipients(self, csv_path=None):
-        return len(self._parse_csv(csv_path))
+        return len(self._parse_excel(csv_path))
 
 
 def main():
@@ -237,25 +226,25 @@ def main():
         open(config.STATS_FILE, 'wb').close()
 
     try:
-        action, html_path, csv_path, subject = config.ACTION,config.HTML_PATH,config.CSV_PATH,config.SUBJECT
+        action, html_path, excel_path, subject = config.ACTION, config.HTML_PATH, config.EXCEL_PATH, config.SUBJECT
     except ValueError:
-        print( "Not enough argumants supplied. PyMailer requests 1 option and 3 arguments: ./pymailer -s html_path csv_path subject")
+        print( "Not enough argumants supplied. PyMailer requests 1 option and 3 arguments: ./pymailer -s html_path excel_path subject")
         sys.exit()
 
     if os.path.splitext(html_path)[1] != '.html':
         print( "The html_path argument doesn't seem to contain a valid html file.")
         sys.exit()
 
-    if os.path.splitext(csv_path)[1] != '.csv':
-        print( "The csv_path argument doesn't seem to contain a valid csv file.")
+    if os.path.splitext(excel_path)[1] != '.xlsx':
+        print( "The excel_path argument doesn't seem to contain a valid xlsx file.")
         sys.exit()
 
-    pymailer = PyMailer(html_path, csv_path, subject)
+    pymailer = PyMailer(html_path, excel_path, subject)
 
     if action == '-live':
         if input("You are about to send to %s recipients. Do you want to continue (yes/no)? " % pymailer.count_recipients()) == 'yes':
             # save the csv file used to the stats file
-            pymailer._stats("CSV USED: %s" % csv_path)
+            pymailer._stats("EXCEL USED: %s" % excel_path)
 
             # send the email and try resend to failed recipients
             pymailer.send()
@@ -265,14 +254,15 @@ def main():
             sys.exit()
 
     elif action == '-test':
-        if input("You are about to send a test mail to all recipients as specified in config.py. Do you want to continue (yes/no)? ") == 'yes':
-            pymailer.send_test()
+        _input = input("You are about to send a test mail to all recipients as specified in config.py. Do you want to continue (yes/no)? ")
+        if _input == 'yes':
+            pymailer.send()
         else:
-            print( "Aborted.")
+            print("Aborted.")
             sys.exit()
 
     else:
-        print( "%s option is not support. Use either [-s] to send to all recipients or [-t] to send to test recipients" % action)
+        print("%s option is not support. Use either [-s] to send to all recipients or [-t] to send to test recipients" % action)
 
     # save the end time to the stats file
     pymailer._stats("END TIME: %s" % datetime.now())

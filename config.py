@@ -15,13 +15,13 @@ STATS_FILE = 'tmp/pymailer-%s.stat' % str(datetime.now()).replace(' ', '-').repl
 ACTION = '-test'
 
 # MailTemplate file
-HTML_PATH = "mailTemplate.html"
+HTML_PATH = "templates/rentabilidades.html"
 
 # Database File
-CSV_PATH = 'database.csv'
+EXCEL_PATH = 'templates/rentabilidades.xlsx'
 
 # Mail Subject
-SUBJECT = 'SUBJECT'
+SUBJECT = 'Resumen 2018'
 
 # smtp settings
 SMTP_HOST = 'smtp.gmail.com'
@@ -34,8 +34,6 @@ FROM_PASSWORD = 'EstateAlLoro'
 
 # test recipients list
 TEST_RECIPIENTS = [
-    {'email':'jcarpio@accuratequant.com','name': 'Jose', 'SALDO_MEDIO_MONEDA': 'dynamic input 2',
-     'SALDO_FINAL_MONEDA': 'dynamic input 3', 'PRIMER_INGRESO': 'dynamic input 4', 'CÓDIGO_CUENTA': 'dynamic input 5'},
-    {'email':'ialonso@accuratequant.com','name': 'Igor', 'SALDO_MEDIO_MONEDA': '50000',
-     'SALDO_FINAL_MONEDA': '50000', 'PRIMER_INGRESO': '50000', 'CÓDIGO_CUENTA': 'X123321'}
+    {'EMAIL':'jcarpio@accuratequant.com','NAME': 'Jose', 'SALDO_MEDIO_MONEDA': 'dynamic input 2',
+     'SALDO_FINAL_MONEDA': 'dynamic input 3', 'PRIMER_INGRESO': 'dynamic input 4', 'CODIGO_CUENTA': 'dynamic input 5'}
 ]
