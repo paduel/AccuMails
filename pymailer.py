@@ -105,7 +105,7 @@ class PyMailer():
         Open, parse and substitute placeholders with recipient data.
         """
         try:
-            html_file = open(self.html_path, 'rb')
+            html_file = open(self.html_path, 'r+', encoding="utf-8")
         except IOError:
             raise IOError("Invalid or missing html file path.")
 
@@ -121,7 +121,7 @@ class PyMailer():
                 if type(valor) in [float,int]:
                     valor = self._number_parser_eur(valor)
 
-                html_content = (html_content.decode('utf-8')).replace(placeholder, str(valor)).encode('utf-8')
+                html_content = (html_content).replace(placeholder, str(valor))
                 # html_content = str(html_content).replace(placeholder, value)
 
         return html_content
@@ -137,29 +137,39 @@ class PyMailer():
         html_content = self._html_parser(recipient_data)
 
         # instatiate the email object and assign headers
-        email_message = message.Message()
+        # email_message = message.Message()
+        # email_message.add_header('From', sender)
+        # email_message.add_header('To', recipient)
+        # email_message.add_header('Subject', self.subject)
+        # email_message.add_header('MIME-Version', '1.0')
+        # email_message.add_header('Content-Type', 'text/html; charset="utf-8"')
+        # email_message.set_payload(html_content)
+
+        email_message = MIMEMultipart()
         email_message.add_header('From', sender)
         email_message.add_header('To', recipient)
         email_message.add_header('Subject', self.subject)
         email_message.add_header('MIME-Version', '1.0')
         email_message.add_header('Content-Type', 'text/html; charset="utf-8"')
-        email_message.set_payload(html_content)
+        email_message.attach(MIMEText(html_content, 'html'))
 
-        # email_message = MIMEMultipart('alternative')
-        # email_message['From'] = sender
-        # email_message['To'] = recipient
-        # email_message['Date'] = formatdate(localtime=True)
-        # email_message['Subject'] = self.subject
-        # email_message.attach(MIMEText(html_content, 'html'))
-        #
-        #
-        # if 'file' in recipient:
-        #     file = recipient['file']
-        #     part = MIMEBase('application', "octet-stream")
-        #     part.set_payload(open(file, "rb").read())
-        #     encoders.encode_base64(part)
-        #     part.add_header('Content-Disposition', 'attachment; filename=' + file + '')
-        #     email_message.attach(part)
+
+        attachment_file = os.path.join(config.ATTACHMENT_PATH, config.ATTACHMENT_NAME)
+        if os.path.exists(attachment_file):
+            # instance of MIMEBase and named as p
+            attachment_part = MIMEBase('application', 'octet-stream')
+            attachment = open(attachment_file, "rb")
+            # To change the payload into encoded form
+            attachment_part.set_payload(attachment.read())
+
+            # encode into base64
+            encoders.encode_base64(attachment_part)
+
+            attachment_part.add_header('Content-Disposition', "attachment;filename= %s" % config.ATTACHMENT_NAME)
+            email_message.attach(attachment_part)
+        else:
+            logger.warning("attachment file not found")
+        return email_message.as_string()
 
         return email_message.as_string()
 

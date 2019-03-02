@@ -20,6 +20,10 @@ HTML_PATH = "templates/rentabilidades.html"
 # Database File
 EXCEL_PATH = 'templates/rentabilidades.xlsx'
 
+# Attachment file path
+ATTACHMENT_PATH = 'assets/'
+ATTACHMENT_NAME = 'sample attachment.pdf'
+
 # Mail Subject
 SUBJECT = 'Resumen 2018'
 
