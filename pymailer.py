@@ -155,7 +155,7 @@ class PyMailer():
 
 
         attachment_file = os.path.join(config.ATTACHMENT_PATH, config.ATTACHMENT_NAME)
-        if os.path.exists(attachment_file):
+        if os.path.isfile(attachment_file):
             # instance of MIMEBase and named as p
             attachment_part = MIMEBase('application', 'octet-stream')
             attachment = open(attachment_file, "rb")
@@ -171,7 +171,7 @@ class PyMailer():
             logger.warning("attachment file not found")
         return email_message.as_string()
 
-        return email_message.as_string()
+
 
     def _parse_excel(self, excel_path=None):
         """

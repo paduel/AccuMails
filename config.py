@@ -22,8 +22,8 @@ EXCEL_PATH = 'templates/rentabilidades.xlsx'
 
 # Attachment file path
 ATTACHMENT_PATH = 'assets/'
-ATTACHMENT_NAME = 'sample attachment.pdf'
-
+#ATTACHMENT_NAME = 'sample attachment.pdf'
+ATTACHMENT_NAME = ''
 # Mail Subject
 SUBJECT = 'Resumen 2018'
 
