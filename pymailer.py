@@ -24,21 +24,22 @@ from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email import encoders
 
-
 import config
 import error_logs
-
 
 locale.setlocale(locale.LC_ALL, 'en_us')
 
 # setup logging to specified log file
 logger = error_logs.get_logger(__name__)
+
+
 class PyMailer():
     """
     A python bulk mailer commandline utility. Takes five arguments: the path to the html file to be parsed; the
     database of recipients (.csv); the subject of the email; email adsress the mail comes from; and the name the email
     is from.
     """
+
     def __init__(self, html_path, excel_path, subject, *args, **kwargs):
         self.html_path = html_path
         self.excel_path = excel_path
@@ -82,23 +83,22 @@ class PyMailer():
         Validate the supplied email address.
         """
         if not email_address or len(email_address) < 5:
-            print( 1)
+            print(1)
             return None
         if not re.match(r'^[a-zA-Z0-9._%-+]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$', email_address):
             return None
         return email_address
 
-    def _number_parser_eur(self,number):
+    def _number_parser_eur(self, number):
         """
         Parser int and float to Eur format number
         :param number:
         :return:
         """
         if type(number) == float:
-            return locale.format('%.2f', number, True).replace(',',';').replace('.',',').replace(';','.')
+            return locale.format('%.2f', number, True).replace(',', ';').replace('.', ',').replace(';', '.')
         elif type(number) == int:
             return locale.format('%d', number, True).replace(',', '.')
-
 
     def _html_parser(self, recipient_data):
         """
@@ -118,7 +118,7 @@ class PyMailer():
             for key, value in recipient_data.items():
                 placeholder = "<!--%s-->" % key
                 valor = value
-                if type(valor) in [float,int]:
+                if type(valor) in [float, int] and key not in ['ACCOUNT']:
                     valor = self._number_parser_eur(valor)
 
                 html_content = (html_content).replace(placeholder, str(valor))
@@ -153,7 +153,6 @@ class PyMailer():
         email_message.add_header('Content-Type', 'text/html; charset="utf-8"')
         email_message.attach(MIMEText(html_content, 'html'))
 
-
         attachment_file = os.path.join(config.ATTACHMENT_PATH, config.ATTACHMENT_NAME)
         if os.path.isfile(attachment_file):
             # instance of MIMEBase and named as p
@@ -171,8 +170,6 @@ class PyMailer():
             logger.warning("attachment file not found")
         return email_message.as_string()
 
-
-
     def _parse_excel(self, excel_path=None):
         """
         Parse the entire excel file and return a list of dicts.
@@ -186,7 +183,8 @@ class PyMailer():
         except IOError:
             raise IOError("Invalid or missing excel file path.")
 
-
+        if 'ENVIO' in excel_data.columns:
+            excel_data = excel_data[excel_data['ENVIO'].isin(['Y', 'y', 1, '1'])]
         recipient_data_list = excel_data.to_dict('records')
 
         return recipient_data_list
@@ -251,28 +249,29 @@ class PyMailer():
 
 
 def main():
-
     if not os.path.exists(config.STATS_FILE):
         open(config.STATS_FILE, 'wb').close()
 
     try:
         action, html_path, excel_path, subject = config.ACTION, config.HTML_PATH, config.EXCEL_PATH, config.SUBJECT
     except ValueError:
-        print( "Not enough argumants supplied. PyMailer requests 1 option and 3 arguments: ./pymailer -s html_path excel_path subject")
+        print(
+            "Not enough argumants supplied. PyMailer requests 1 option and 3 arguments: ./pymailer -s html_path excel_path subject")
         sys.exit()
 
     if os.path.splitext(html_path)[1] != '.html':
-        print( "The html_path argument doesn't seem to contain a valid html file.")
+        print("The html_path argument doesn't seem to contain a valid html file.")
         sys.exit()
 
     if os.path.splitext(excel_path)[1] != '.xlsx':
-        print( "The excel_path argument doesn't seem to contain a valid xlsx file.")
+        print("The excel_path argument doesn't seem to contain a valid xlsx file.")
         sys.exit()
 
     pymailer = PyMailer(html_path, excel_path, subject)
 
     if action == '-live':
-        if input("You are about to send to %s recipients. Do you want to continue (yes/no)? " % pymailer.count_recipients()) == 'yes':
+        if input(
+                "You are about to send to %s recipients. Do you want to continue (yes/no)? " % pymailer.count_recipients()) == 'yes':
             # save the csv file used to the stats file
             pymailer._stats("EXCEL USED: %s" % excel_path)
 
@@ -280,11 +279,12 @@ def main():
             pymailer.send()
             # pymailer.resend_failed()
         else:
-            print( "Aborted.")
+            print("Aborted.")
             sys.exit()
 
     elif action == '-test':
-        _input = input("You are about to send a test mail to all recipients as specified in config.py. Do you want to continue (yes/no)? ")
+        _input = input(
+            "You are about to send a test mail to all recipients as specified in config.py. Do you want to continue (yes/no)? ")
         if _input == 'yes':
             pymailer.send()
         else:
@@ -292,10 +292,12 @@ def main():
             sys.exit()
 
     else:
-        print("%s option is not support. Use either [-s] to send to all recipients or [-t] to send to test recipients" % action)
+        print(
+            "%s option is not support. Use either [-s] to send to all recipients or [-t] to send to test recipients" % action)
 
     # save the end time to the stats file
     pymailer._stats("END TIME: %s" % datetime.now())
+
 
 if __name__ == '__main__':
     main()

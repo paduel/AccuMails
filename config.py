@@ -18,23 +18,25 @@ ACTION = '-test'
 HTML_PATH = "templates/rentabilidades.html"
 
 # Database File
-EXCEL_PATH = 'templates/rentabilidades.xlsx'
+EXCEL_PATH = 'templates/rentabilidades_real.xlsx'
 
 # Attachment file path
 ATTACHMENT_PATH = 'assets/'
 #ATTACHMENT_NAME = 'sample attachment.pdf'
 ATTACHMENT_NAME = ''
 # Mail Subject
-SUBJECT = 'Resumen 2018'
+SUBJECT = 'Resumen cartera 2018'
 
 # smtp settings
 SMTP_HOST = 'smtp.gmail.com'
 SMTP_PORT = '465'
 
 # the address and name the email comes from
+# FROM_EMAIL = 'alertas.accuratequant@gmail.com'
+# FROM_PASSWORD = 'EstateAlLoro'
 FROM_NAME = 'AccurateQuant'
-FROM_EMAIL = 'alertas.accuratequant@gmail.com'
-FROM_PASSWORD = 'EstateAlLoro'
+FROM_EMAIL = 'info@accuratequant.com'
+FROM_PASSWORD = 'Accurate2'
 
 # test recipients list
 TEST_RECIPIENTS = [
