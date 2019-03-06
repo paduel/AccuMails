@@ -117,8 +117,11 @@ class PyMailer():
             for key, value in recipient_data.items():
                 placeholder = "<!--%s-->" % key
                 valor = value
-                if type(valor) in [float, int] and key not in ['ACCOUNT']:
+                if type(valor) in [float, int] and key not in ['ACCOUNT','ACCOUNT_ID']:
                     valor = self._number_parser_eur(valor)
+                elif 'FECHA' in key:
+                    valor = valor.strftime("%d/%m/%Y")
+
 
                 html_content = (html_content).replace(placeholder, str(valor))
                 # html_content = str(html_content).replace(placeholder, value)
