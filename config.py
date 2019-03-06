@@ -13,18 +13,19 @@ STATS_FILE = 'tmp/pymailer-%s.stat' % str(datetime.now()).replace(' ', '-').repl
 # -live for live environment 
 # -test for test environment
 ACTION = '-test'
-
+"""   """
 # MailTemplate file
 HTML_PATH = "templates/modelo_720.html"
-
 # Database File
 EXCEL_PATH = 'templates/modelo_720.xlsx'
 
 # Attachment file path
-ATTACHMENT_PATH = 'assets/ejemplo_720.pdf'
-#ATTACHMENT_NAME = 'sample attachment.pdf'
+ATTACHMENT_PATH = 'assets/'
+ATTACHMENT_NAME = 'Ejemplo 720.pdf'
 # Mail Subject
-SUBJECT = 'Resumen cartera 2018'
+SUBJECT = 'Modelo 720'
+
+"""   """
 
 # smtp settings
 SMTP_HOST = 'smtp.gmail.com'
