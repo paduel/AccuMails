@@ -15,15 +15,15 @@ STATS_FILE = 'tmp/pymailer-%s.stat' % str(datetime.now()).replace(' ', '-').repl
 ACTION = '-test'
 """   """
 # MailTemplate file
-HTML_PATH = "templates/modelo_720.html"
+HTML_PATH = "templates/Mejora_tu_Cartera.html"
 # Database File
-EXCEL_PATH = 'templates/modelo_720.xlsx'
+EXCEL_PATH = 'templates/Mejora_tu_Cartera.xlsx'
 
 # Attachment file path
 ATTACHMENT_PATH = 'assets/'
-ATTACHMENT_NAME = 'Ejemplo 720.pdf'
+ATTACHMENT_NAME = 'mailTemplate_image.pdf'
 # Mail Subject
-SUBJECT = 'Modelo 720'
+SUBJECT = 'Accurate Quant - Mejora tu Cartera'
 
 """   """
 
@@ -32,8 +32,8 @@ SMTP_HOST = 'smtp.gmail.com'
 SMTP_PORT = '465'
 
 # the address and name the email comes from
-# FROM_EMAIL = 'alertas.accuratequant@gmail.com'
-# FROM_PASSWORD = 'EstateAlLoro'
+#FROM_EMAIL = 'alertas.accuratequant@gmail.com'
+#FROM_PASSWORD = 'EstateAlLoro'
 FROM_NAME = 'AccurateQuant'
 FROM_EMAIL = 'info@accuratequant.com'
 FROM_PASSWORD = 'Accurate2'
@@ -43,3 +43,15 @@ TEST_RECIPIENTS = [
     {'EMAIL':'jcarpio@accuratequant.com','NAME': 'Jose', 'SALDO_MEDIO_MONEDA': 'dynamic input 2',
      'SALDO_FINAL_MONEDA': 'dynamic input 3', 'PRIMER_INGRESO': 'dynamic input 4', 'CODIGO_CUENTA': 'dynamic input 5'}
 ]
+
+
+#  add or modify category names and links as per your requirements.
+# https://support.awesome-table.com/hc/en-us/articles/115002196665-Display-images-from-Google-Drive
+_IDS_IMAGES_DRIVE = {'graph1': '1SGrU_The288mvi_lF15Av3Z1GyJ6AarU',
+                     'graph2': '1o3SoM3nPXUOnAKYjYiOf_5Ny1Uhu0Zvc',
+                     'graph3': '1XD-uMceKATRIaQcKkqhJbiI1SmXfr33h',
+                     'graph4': '1N2db5GAttk0TtGehGACRxjWJXZfSZfOS',
+                     'graph5': '1zoU9wVgfXOHtittDZnokfEaLT6Iv2IZ0',}
+
+CATEGORY_TYPE = {K: 'https://drive.google.com/thumbnail?id='+_IDS_IMAGES_DRIVE[K]+'&sz=w600-h600'
+                 for K in _IDS_IMAGES_DRIVE}

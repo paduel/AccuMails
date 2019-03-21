@@ -189,6 +189,11 @@ class PyMailer():
             excel_data = excel_data[excel_data['ENVIO'].isin(['Y', 'y', 1, '1'])]
         recipient_data_list = excel_data.to_dict('records')
 
+        #Look for images that are in categories
+        for recipient in recipient_data_list:
+            if 'GRAPH_IMAGE_TYPE' in recipient:
+                recipient['GRAPH_IMAGE_TYPE'] = config.CATEGORY_TYPE.get(recipient['GRAPH_IMAGE_TYPE'])
+
         return recipient_data_list
 
     def send(self, retry_count=0, recipient_list=None):
