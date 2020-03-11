@@ -15,15 +15,15 @@ STATS_FILE = 'tmp/pymailer-%s.stat' % str(datetime.now()).replace(' ', '-').repl
 ACTION = '-test'
 """   """
 # MailTemplate file
-HTML_PATH = "templates/Mejora_tu_Cartera.html"
+HTML_PATH = "templates/modelo_720.html"
 # Database File
-EXCEL_PATH = 'templates/Mejora_tu_Cartera.xlsx'
+EXCEL_PATH = 'templates/Datos_email_def.xlsx'
 
 # Attachment file path
 ATTACHMENT_PATH = 'assets/'
-ATTACHMENT_NAME = 'mailTemplate_image.pdf'
+ATTACHMENT_NAME = 'Ejemplo 720 2019.pdf'
 # Mail Subject
-SUBJECT = 'Accurate Quant - Mejora tu Cartera'
+SUBJECT = 'Accurate Quant - Modelo 720'
 
 """   """
 
@@ -40,7 +40,7 @@ FROM_PASSWORD = 'Accurate2'
 
 # test recipients list
 TEST_RECIPIENTS = [
-    {'EMAIL':'jcarpio@accuratequant.com','NAME': 'Jose', 'SALDO_MEDIO_MONEDA': 'dynamic input 2',
+    {'EMAIL':'acarpio@accuratequant.com','NAME': 'Jose', 'SALDO_MEDIO_MONEDA': 'dynamic input 2',
      'SALDO_FINAL_MONEDA': 'dynamic input 3', 'PRIMER_INGRESO': 'dynamic input 4', 'CODIGO_CUENTA': 'dynamic input 5'}
 ]
 
